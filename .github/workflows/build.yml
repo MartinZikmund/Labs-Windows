@@ -72,7 +72,7 @@ jobs:
       fail-fast: false # prevent one matrix pipeline from being cancelled if one fails, we want them all to run to completion.
       matrix:
         winui: [2, 3]
-        multitarget: ['uwp', 'wasdk', 'wasm', 'wpf', 'linuxgtk', 'macos', 'ios', 'android']
+        multitarget: ['uwp', 'wasdk', 'wasm', 'wpf', 'win32', 'linux', 'macos', 'ios', 'android']
         exclude:
           # WinUI 2 not supported on wasdk
           - winui: 2
@@ -80,6 +80,12 @@ jobs:
           # WinUI 3 not supported on uwp
           - winui: 3
             multitarget: uwp
+          # wpf is the Uno 5 Skia WPF head, which Uno 6 replaced with win32
+          - winui: 3
+            multitarget: wpf
+          # win32 is the Uno 6 Skia desktop head, which has no Uno 5 equivalent
+          - winui: 2
+            multitarget: win32
 
     env:
       MULTI_TARGET_DIRECTORY: tooling/MultiTarget
@@ -162,7 +168,7 @@ jobs:
         run: dotnet tool restore
 
       - name: Run Uno Check to Install Dependencies
-        if: ${{ matrix.multitarget != 'wasdk' && matrix.multitarget != 'linuxgtk' && matrix.multitarget != 'wpf' && env.HAS_BUILDABLE_COMPONENTS == 'true' }}
+        if: ${{ matrix.multitarget != 'wasdk' && matrix.multitarget != 'linux' && matrix.multitarget != 'wpf' && matrix.multitarget != 'win32' && env.HAS_BUILDABLE_COMPONENTS == 'true' }}
         run: >
           dotnet tool run uno-check 
           --ci
